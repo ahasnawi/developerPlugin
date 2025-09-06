@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="../../../../scripts/buildfire.min.js"></script>
+
+        <!-- build:bundleJSFiles  -->
+          <script src="scripts.js"></script>
+        <!-- endbuild -->
+
+        <!-- build:bundleCSSFiles  -->
+          <link rel="stylesheet" href="style.css">
+        <!-- endbuild -->
+    </head>
+    <body>
+        <div id="monacoEditor"></div>
+        <div class="button-switch flex-between">
+            <span>Auto Reload</span>
+            <input id="autoReloadSwitch" type="checkbox">
+            <label for="autoReloadSwitch" class="label-success"></label>
+        </div>
+        <div class="manual-reload flex-between">
+            <span>Reload</span>
+            <button id="reloadEditorBtn" class="btn btn-primary">Reload</button>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "author": "Buildfire",
+  "pluginName": "Developer",
+  "pluginDescription": "Enable developers to fully build their own plugins using HTML, CSS, and JavaScript.",
+  "supportEmail": "support@buildfire.com",
+  "control": {
+    "content": {
+      "enabled": true
+    },
+    "design": {
+      "enabled": false
+    },
+    "settings": {
+      "enabled": false
+    }
+  },
+  "widget": {},
+  "features": [],
+  "keywords": "developer, custom, HTML, CSS, JavaScript, code editor",
+  "languages": [
+    "en"
+  ]
+}

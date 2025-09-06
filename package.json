@@ -1,0 +1,26 @@
+{
+  "name": "developerPlugin",
+  "version": "0.0.1",
+  "description": "enable developers to fully build their own plugins using HTML, CSS, and JavaScript.",
+  "main": "index.js",
+  "scripts": {
+    "build": "gulp build && cd ../ && rm -rf developerPlugin.zip && zip -r developerPlugin.zip developerPlugin_release && rm -rf developerPlugin_release"
+  },
+  "author": "App Team",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.28.3",
+    "@babel/preset-env": "^7.28.3",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-csso": "^3.0.0",
+    "gulp-eslint": "^6.0.0",
+    "gulp-html-replace": "^1.6.2",
+    "gulp-htmlmin": "^5.0.1",
+    "gulp-imagemin": "^3.3.0",
+    "gulp-strip-comments": "^2.5.1",
+    "gulp-uglify": "^3.0.0",
+    "rimraf": "^5.0.1"
+  }
+}
