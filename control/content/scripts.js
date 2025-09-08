@@ -24,8 +24,8 @@ function loadEditorData(editor, callback) {
 			} else {
 				// Use default template if no HTML is saved
 				let scriptSrc = (context && context.endPoints && context.endPoints.pluginRootHost)
-				? context.endPoints.pluginRootHost + '/scripts/buildfire.min.js'
-				: '';
+					? context.endPoints.pluginRootHost + '/scripts/buildfire.min.js'
+					: '';
 
 				html = '<!DOCTYPE html>\n<html>\n  <head></head>\n  <body>\n    <div>Hello Buildfire</div>\n    <script src="' + scriptSrc + '"></script>\n  </body>\n</html>';
 				usedDefault = true;
@@ -35,13 +35,15 @@ function loadEditorData(editor, callback) {
 
 			// Restore reload switch state
 			let autoReloadSwitch = document.getElementById('autoReloadSwitch');
-			if (result?.data) {
-				if (typeof result.data.autoReload == 'undefined') {
-					result.data.autoReload = true; // default value
+			if (result?.data?.content) {
+				if (typeof result.data.content.autoReload == 'undefined') {
+					result.data.content.autoReload = true; // default value
 					autoReloadSwitch.checked = true;
 				} else {
-					autoReloadSwitch.checked = !!result.data.autoReload;
+					autoReloadSwitch.checked = !!result.data.content.autoReload;
 				}
+			} else {
+				autoReloadSwitch.checked = true; // default value
 			}
 
 			// Save default value if it was used
@@ -60,9 +62,9 @@ function saveEditorData({ editor, sendReloadMessage = false }) {
 	const autoReloadSwitch = document.getElementById('autoReloadSwitch');
 	const data = {
 		content: {
-			html: html
-		},
-		autoReload: autoReloadSwitch.checked ? true : false
+			html: html,
+			autoReload: autoReloadSwitch.checked ? true : false
+		}
 	};
 	buildfire.datastore.save(data, function (err) {
 		if (err) {

@@ -118,7 +118,6 @@ gulp.task('monaco', function() {
 const buildTasksToRun = [
     'html',
     'resources',
-    'images',
     ...cssTasks.map(task => task.name),
     ...jsTasks.map(task => task.name),
     'monaco'
