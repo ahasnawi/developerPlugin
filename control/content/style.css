@@ -1,12 +1,33 @@
+.developer-container {
+    /* padding: 0px 16px; */
+}
+
+.editor {
+    background: #1F1F1F;
+    border-radius: 10px;
+    height: 475px;
+    /* padding-bottom: 90px; */
+    position: relative;
+    margin-bottom: 20px;
+}
+
 #monacoEditor {
-    margin: 0px 16px;
-    height: 400px;
+    height: 100%;
 }
-.button-switch, .manual-reload {
+.button-switch {
     font-size: 16px;
-    height: 1.5rem;
-    margin: 32px 16px;
+    margin: 30px 10px 0 0;
 }
+
+.button-switch .text {
+    color: #000;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+
 .flex-between {
     display: flex;
     align-items: center;
@@ -54,4 +75,115 @@
 .button-switch > input[type="checkbox"]:checked + label::after {
     background: inherit;
     left: 23px;
+}
+
+.button-switch label.label-success {
+    background-color: #47c3ff;
+}
+
+p.note {
+    background: #F5F5F5;
+    color: #101010;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: -0.12px;
+    line-height: 150%;
+    margin-bottom: 15px;
+    padding: 10px 13px;
+}
+
+p.note .bold {
+    font-weight: 500;
+}
+
+p.note a {
+    color: #089AE1;
+}
+
+.monaco-editor,
+.monaco-editor .overflow-guard {
+    border-radius: 10px;
+}
+
+.btns-container {
+    max-height: 33px;
+    margin-bottom: 30px;
+}
+
+.btn {
+    border-radius: 7px;
+    border: none;
+    color: #101010;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    height: 100%;
+    padding: 12px 20px;
+    transition: all 0.3s ease-in-out;
+}
+
+.create-ai-btn {
+    background: linear-gradient(256deg, #F5F5F5 -19.73%, #47C3FF 286.39%);
+    letter-spacing: -0.24px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.create-ai-btn::before {
+    background: linear-gradient(256deg, #E0E0E0 -19.73%, #1AA1FF 286.39%);
+    border-radius: 7px;
+    content: '';
+    height: 100%;
+    left: 0;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    transition: opacity 0.3s ease-in-out;
+    width: 100%;
+    z-index: -1;
+}
+
+.create-ai-btn:hover::before {
+    opacity: 1;
+}
+
+.sdk-btn {
+    background-color: #FFFFFF;
+    border-radius: 5px;
+    border: 1px solid rgba(16, 16, 16, 0.15);
+    color: #101010;
+    letter-spacing: -0.12px;
+    line-height: 150%;
+    margin-right: 10px;
+}
+
+.sdk-btn:hover {
+    background: #F5F5F5;
+    color: #101010;
+    cursor: pointer;
+}
+
+.run-code-btn {
+    background: #343434;
+    border-radius: 5px;
+    color: #FFFFFF;
+    letter-spacing: -0.24px;
+    line-height: normal;
+}
+
+.run-code-btn:hover {
+    background: #101010;
+}
+
+.hide-scrollbar {
+	-ms-overflow-style: none;  /* IE and Edge */
+	scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+	display: none; /* Chrome, Safari, Opera */
 }

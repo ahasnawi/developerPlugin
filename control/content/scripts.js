@@ -112,7 +112,7 @@ function debounceAutoSave(editor, delay = 500) {
 })();
 
 document.addEventListener('DOMContentLoaded', function() {
-	let reloadBtn = document.getElementById('reloadEditorBtn');
+    let reloadBtn = document.getElementById('reloadEditorBtn');
 	let autoReloadSwitch = document.getElementById('autoReloadSwitch');
 
 	reloadBtn.addEventListener('click', function() {
@@ -136,4 +136,18 @@ document.addEventListener('DOMContentLoaded', function() {
 			buildfire.messaging.sendMessageToWidget({ action: 'autoReloadChanged', value: value });
 		}
 	};
+
+    const createAiBtn = document.getElementById('createAiBtn');
+    createAiBtn.addEventListener('click', function () {
+        const limit = 10000; // subject to change
+        const html = window.monacoEditor.getValue().trim();
+        if (html.length >= limit) {
+            alert('The current HTML content exceeds the 10,000 character limit for AI generation. Please reduce the content size and try again.');
+        } else {
+            dialogs.showAIDialog({}, (result) => {
+                console.log('AI dialog closed: ', result);
+            });
+        }
+    });
+    dialogs.showDisclaimerDialog(console.log);
 });

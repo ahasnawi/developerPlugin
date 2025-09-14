@@ -6,22 +6,46 @@
 
         <!-- build:bundleJSFiles  -->
           <script src="scripts.js"></script>
+          <script src="dialogs/dialogs.js"></script>
         <!-- endbuild -->
 
         <!-- build:bundleCSSFiles  -->
           <link rel="stylesheet" href="style.css">
+          <link rel="stylesheet" href="cpIcons.css">
+          <link rel="stylesheet" href="dialogs/dialogs.css">
         <!-- endbuild -->
     </head>
-    <body>
-        <div id="monacoEditor"></div>
-        <div class="button-switch flex-between">
-            <span>Auto Reload</span>
-            <input id="autoReloadSwitch" type="checkbox">
-            <label for="autoReloadSwitch" class="label-success"></label>
-        </div>
-        <div class="manual-reload flex-between">
-            <span>Reload</span>
-            <button id="reloadEditorBtn" class="btn btn-primary">Reload</button>
+    <body class="hide-scrollbar">
+        <div class="developer-container">
+            <p class="note">
+                <span class="bold">
+                    Note:
+                </span>
+                Some code may not be reflected in
+                <a href="https://learn.buildfire.com/en/articles/473176-how-to-preview-your-app-on-your-phone" target="_blank">
+                    the app 
+                </a>
+                and will require publishing to function.
+            </p>
+            <div class="editor">
+                <div id="monacoEditor"></div>
+            </div>
+            <div class="flex-between btns-container">
+                <button id="createAiBtn" class="btn create-ai-btn">
+                    <img src="../../resources/ai_icon.svg" alt="">
+                    Create with AI
+                </button>
+                <div class="flex-between">
+                    <a target="_blank" href="https://sdk.buildfire.com/" class="btn sdk-btn">View our SDK</a>
+                    <button id="reloadEditorBtn" class="btn run-code-btn">Run Code</button>
+                </div>
+            </div>
+            <hr>
+            <div class="button-switch flex-between">
+                <div class="text">Auto-Run Code</div>
+                <input id="autoReloadSwitch" type="checkbox">
+                <label for="autoReloadSwitch" class="label-success"></label>
+            </div>
         </div>
     </body>
 </html>
