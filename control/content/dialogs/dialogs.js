@@ -1,7 +1,7 @@
 var dialogs = {
     showDisclaimerDialog: function (callback) {
-
         function closeDialog() {
+            if (callback) callback();
             if (backdrop) {
                 document.body.removeChild(backdrop);
             }
@@ -60,8 +60,8 @@ var dialogs = {
     },
 
     showAIDialog: function (options, callback) {
-        function closeDialog() {
-            if (callback) callback();
+        function closeDialog(result) {
+            if (callback) callback(result);
             if (backdrop) {
                 document.body.removeChild(backdrop);
             }
@@ -79,21 +79,28 @@ var dialogs = {
                 <div class="dialog ai-dialog">
                     <div class="dialog-header">
                         <div class="dialog-title">What are you looking to create?</div>
-                        <span class="icon icon-cross2 close-modal" aria-label="Close dialog"></span>
+                        <span class="icon icon-cross2 close-icon" aria-label="Close dialog"></span>
                     </div>
                     <div class="dialog-body">
                         <textarea class="ai-prompt" rows="6" placeholder="Describe your plugin here..."></textarea>
                         <div class="create-ai-container">
-                            <button class="btn create-ai-btn">
+                            <button id="generateAiBtn" class="btn create-ai-btn">
                                 <img src="../../resources/ai_icon.svg" alt="">
                                 Create with AI
                             </button>
                         </div>
                         <div class="ai-examples-title">Examples of Prompts</div>
-                        <ul class="ai-examples">
+                        <ul class="ai-examples hide-scrollbar">
                             <li>Build a to-do list plugin with add, edit, and delete functionalities.</li>
                             <li>Create a weather plugin that fetches data from a public API and displays current weather conditions.</li>
                             <li>Develop a simple blog plugin that allows users to create, edit, and delete blog posts.</li>
+                            <li>Design a photo gallery plugin that displays images in a grid layout with lightbox functionality.</li>
+                            <li>Implement a contact form plugin that sends form submissions to a specified email address.</li>
+                            <li>Create a countdown timer plugin that counts down to a specific date and time.</li>
+                            <li>Build a quiz plugin that presents multiple-choice questions and provides feedback on answers.</li>
+                            <li>Develop a recipe plugin that allows users to submit and view cooking recipes.</li>
+                            <li>Design a testimonials plugin that displays user reviews in a carousel format.</li>
+                            <li>Implement a pricing table plugin that showcases different subscription plans.</li>
                         </ul>
                     </div>
                 </div>    
@@ -102,12 +109,51 @@ var dialogs = {
         document.body.appendChild(backdrop);
         document.body.appendChild(dialogContainer);
 
-        // Attach close event to the close icon
-        const closeIcon = dialogContainer.querySelector('.close-modal');
+        const generateAiBtn = dialogContainer.querySelector('#generateAiBtn');
+        const aiPrompt = dialogContainer.querySelector('.ai-prompt');
+        aiPrompt.focus();
+
+        aiPrompt.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                generateAiBtn.click();
+            }
+        });
+
+        generateAiBtn.addEventListener('click', function () {
+            if (!aiPrompt || !aiPrompt.value || !aiPrompt.value.trim().length) {
+                buildfire.dialog.alert({
+                    message: "Please enter a prompt for AI generation.",
+                });
+                return;
+            }
+            const userMessage = options.html + '\n\n' + aiPrompt.value;
+            generateAICode({ userMessage }, (err, res) => {
+                if (err || !res) {
+                    buildfire.dialog.alert({
+                        message: "Error generating AI response.",
+                    });
+                    return;
+                }
+                closeDialog(res);
+            });
+        });
+
+        const closeIcon = dialogContainer.querySelector('.close-icon');
         if (closeIcon) {
             closeIcon.addEventListener('click', function () {
                 closeDialog();
             });
         }
+
+        // Add click listeners to all example <li> items
+        const exampleItems = dialogContainer.querySelectorAll('.ai-examples li');
+        exampleItems.forEach(function (item) {
+            item.style.cursor = 'pointer';
+            item.addEventListener('click', function () {
+                aiPrompt.value = item.textContent;
+                aiPrompt.focus();
+            });
+        });
     }
 };

@@ -2,7 +2,7 @@
 // Communicate with buildfire datastore and Monaco Editor
 
 // Get data from datastore and set editor value
-function loadEditorData(editor, callback) {
+function init(editor, callback) {
 	buildfire.datastore.get(function (err, result) {
 		if (err) {
 			console.error('Error loading data:', err);
@@ -48,7 +48,7 @@ function loadEditorData(editor, callback) {
 
 			// Save default value if it was used
 			if (usedDefault) {
-				saveEditorData({ editor, sendReloadMessage: true });
+				saveData({ editor, sendReloadMessage: true });
 			}
 
 			callback && callback(null, result);
@@ -56,21 +56,25 @@ function loadEditorData(editor, callback) {
 	});
 }
 
-// Save editor value to datastore
-function saveEditorData({ editor, sendReloadMessage = false }) {
-	const html = editor.getValue();
+// Save to datastore
+function saveData(options) {
+	const html = options.editor.getValue();
 	const autoReloadSwitch = document.getElementById('autoReloadSwitch');
 	const data = {
 		content: {
 			html: html,
-			autoReload: autoReloadSwitch.checked ? true : false
+			autoReload: autoReloadSwitch.checked ? true : false,
 		}
 	};
+    if (options.disclaimerAcknowledged) {
+        data.content.disclaimerAcknowledged = true;
+    }
+
 	buildfire.datastore.save(data, function (err) {
 		if (err) {
 			console.error('Error saving data:', err);
 		} else {
-			if (sendReloadMessage) {
+			if (options.sendReloadMessage) {
 				buildfire.messaging.sendMessageToWidget({ action: 'reload' });
 			}
 		}
@@ -83,11 +87,19 @@ function debounceAutoSave(editor, delay = 500) {
 	function onChange() {
 		if (timer) clearTimeout(timer);
 		timer = setTimeout(function () {
-			saveEditorData({ editor });
+			saveData({ editor });
 		}, delay);
 	}
 	editor.onDidChangeModelContent(onChange);
 }
+
+// switch "undo" button visibility
+function toggleUndoButton(savedHtml) {
+    const undoBtn = document.getElementById('undoBtn');
+    if (undoBtn) {
+        undoBtn.style.display = savedHtml ? 'block' : 'none';
+    }
+};
 
 // Monaco Editor dynamic loader and initialization
 (function() {
@@ -103,8 +115,18 @@ function debounceAutoSave(editor, delay = 500) {
 				theme: 'vs-dark',
 				automaticLayout: true
 			});
-			loadEditorData(window.monacoEditor, () => {
-				debounceAutoSave(window.monacoEditor);
+			init(window.monacoEditor, (err, result) => {
+                if (!err) {
+                    // check for disclaimer acknowledgment
+                    let disclaimerAcknowledged = result?.data?.content?.disclaimerAcknowledged;
+                    if (!disclaimerAcknowledged) {
+                        dialogs.showDisclaimerDialog(() => {
+                            saveData({ editor: window.monacoEditor, disclaimerAcknowledged: true });
+                        });
+                    } else {
+                        debounceAutoSave(window.monacoEditor);
+                    }
+                }
 			});
 		});
 	};
@@ -114,6 +136,7 @@ function debounceAutoSave(editor, delay = 500) {
 document.addEventListener('DOMContentLoaded', function() {
     let reloadBtn = document.getElementById('reloadEditorBtn');
 	let autoReloadSwitch = document.getElementById('autoReloadSwitch');
+    let savedHtml = '';
 
 	reloadBtn.addEventListener('click', function() {
 		// send reload message to widget on button click
@@ -124,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	autoReloadSwitch.addEventListener('change', function() {
 		buildfire.messaging.sendMessageToWidget({ action: 'autoReloadChanged', value: autoReloadSwitch.checked });
 		if (window.monacoEditor) {
-			saveEditorData({ editor: window.monacoEditor });
+			saveData({ editor: window.monacoEditor });
 		}
 	});
 
@@ -142,12 +165,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const limit = 10000; // subject to change
         const html = window.monacoEditor.getValue().trim();
         if (html.length >= limit) {
-            alert('The current HTML content exceeds the 10,000 character limit for AI generation. Please reduce the content size and try again.');
+            buildfire.dialog.alert({
+            message: "The current HTML content exceeds the 10,000 character limit for AI generation. Please reduce the content size and try again.",
+            });
         } else {
-            dialogs.showAIDialog({}, (result) => {
-                console.log('AI dialog closed: ', result);
+            dialogs.showAIDialog({html}, (result) => {
+                savedHtml = html;
+                if (result) {
+                    window.monacoEditor.setValue(result);
+                    toggleUndoButton(savedHtml);
+                    console.log('AI dialog closed: ', result);
+                }
             });
         }
     });
-    dialogs.showDisclaimerDialog(console.log);
+    const undoBtn = document.getElementById('undoBtn');
+    undoBtn.addEventListener('click', function () {
+        if (savedHtml && window.monacoEditor) {
+            window.monacoEditor.setValue(savedHtml);
+            savedHtml = '';
+        }
+        toggleUndoButton(savedHtml);
+    });
+    toggleUndoButton(savedHtml);
 });

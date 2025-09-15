@@ -27,7 +27,6 @@
     line-height: normal;
 }
 
-
 .flex-between {
     display: flex;
     align-items: center;
@@ -186,4 +185,22 @@ p.note a {
 
 .hide-scrollbar::-webkit-scrollbar {
 	display: none; /* Chrome, Safari, Opera */
+}
+
+.editor-toast {
+    align-items: center;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+    color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    justify-content: space-between;
+    max-width: 100%;
+    padding: 14px;
+}
+
+.close-icon {
+    color: #101010;
+    cursor: pointer;
+    font-size: 18px;
 }
