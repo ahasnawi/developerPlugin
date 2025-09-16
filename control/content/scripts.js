@@ -48,7 +48,7 @@ function init(editor, callback) {
 
 			// Save default value if it was used
 			if (usedDefault) {
-				saveData({ editor, sendReloadMessage: true });
+				saveData({ editor });
 			}
 
 			callback && callback(null, result);
@@ -74,15 +74,15 @@ function saveData(options) {
 		if (err) {
 			console.error('Error saving data:', err);
 		} else {
-			if (options.sendReloadMessage) {
-				buildfire.messaging.sendMessageToWidget({ action: 'reload' });
+			if (autoReloadSwitch.checked) {
+				buildfire.messaging.sendMessageToWidget({ action: 'reloadUserCodePlugin' });
 			}
 		}
 	});
 }
 
 // Always auto-save on editor change
-function debounceAutoSave(editor, delay = 500) {
+function registerAutoSave(editor, delay = 500) {
 	let timer = null;
 	function onChange() {
 		if (timer) clearTimeout(timer);
@@ -123,9 +123,8 @@ function toggleUndoButton(savedHtml) {
                         dialogs.showDisclaimerDialog(() => {
                             saveData({ editor: window.monacoEditor, disclaimerAcknowledged: true });
                         });
-                    } else {
-                        debounceAutoSave(window.monacoEditor);
                     }
+                    registerAutoSave(window.monacoEditor);
                 }
 			});
 		});
@@ -140,25 +139,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	reloadBtn.addEventListener('click', function() {
 		// send reload message to widget on button click
-		buildfire.messaging.sendMessageToWidget({ action: 'reload' });
+		buildfire.messaging.sendMessageToWidget({ action: 'reloadUserCodePlugin' });
 	});
 
 	// Send message to widget and save when autoReloadSwitch value changes
 	autoReloadSwitch.addEventListener('change', function() {
-		buildfire.messaging.sendMessageToWidget({ action: 'autoReloadChanged', value: autoReloadSwitch.checked });
 		if (window.monacoEditor) {
 			saveData({ editor: window.monacoEditor });
 		}
 	});
-
-	// when widget reload, it needs to know what is the current autoReload value
-	buildfire.messaging.onReceivedMessage = function(message) {
-		if (message && message.action === 'getAutoReload') {
-			let autoReloadSwitch = document.getElementById('autoReloadSwitch');
-			let value = !!autoReloadSwitch.checked;
-			buildfire.messaging.sendMessageToWidget({ action: 'autoReloadChanged', value: value });
-		}
-	};
 
     const createAiBtn = document.getElementById('createAiBtn');
     createAiBtn.addEventListener('click', function () {
