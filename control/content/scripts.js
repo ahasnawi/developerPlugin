@@ -2,6 +2,7 @@
 // Communicate with buildfire datastore and Monaco Editor
 
 // Get data from datastore and set editor value
+var disclaimerAcknowledged = null;
 function init(editor, callback) {
 	buildfire.datastore.get(function (err, result) {
 		if (err) {
@@ -27,7 +28,7 @@ function init(editor, callback) {
 					? context.endPoints.pluginRootHost + '/scripts/buildfire.min.js'
 					: '';
 
-				html = '<!DOCTYPE html>\n<html>\n  <head></head>\n  <body>\n    <div>Hello Buildfire</div>\n    <script src="' + scriptSrc + '"></script>\n  </body>\n</html>';
+				html = '<!DOCTYPE html>\n<html>\n  <head></head>\n  <body>\n    <div>Hello Buildfire</div>\n  <!-- If you want to use Buildfire SDK, do not remove the following script tag -->\n  <script src="' + scriptSrc + '"></script>\n  </body>\n</html>';
 				usedDefault = true;
 			}
 
@@ -64,10 +65,11 @@ function saveData(options) {
 		content: {
 			html: html,
 			autoReload: autoReloadSwitch.checked ? true : false,
+            disclaimerAcknowledged: disclaimerAcknowledged
 		}
 	};
-    if (options.disclaimerAcknowledged) {
-        data.content.disclaimerAcknowledged = true;
+    if (typeof disclaimerAcknowledged == 'boolean') {
+        data.content.disclaimerAcknowledged = disclaimerAcknowledged;
     }
 
 	buildfire.datastore.save(data, function (err) {
@@ -94,7 +96,7 @@ function registerAutoSave(editor, delay = 500) {
 }
 
 // switch "undo" button visibility
-function toggleUndoButton(savedHtml) {
+function toggleUndoButtonVisibility(savedHtml) {
     const undoBtn = document.getElementById('undoBtn');
     if (undoBtn) {
         undoBtn.style.display = savedHtml ? 'block' : 'none';
@@ -118,10 +120,11 @@ function toggleUndoButton(savedHtml) {
 			init(window.monacoEditor, (err, result) => {
                 if (!err) {
                     // check for disclaimer acknowledgment
-                    let disclaimerAcknowledged = result?.data?.content?.disclaimerAcknowledged;
+                    disclaimerAcknowledged = result?.data?.content?.disclaimerAcknowledged || false;
                     if (!disclaimerAcknowledged) {
                         dialogs.showDisclaimerDialog(() => {
-                            saveData({ editor: window.monacoEditor, disclaimerAcknowledged: true });
+                            disclaimerAcknowledged = true;
+                            saveData({ editor: window.monacoEditor });
                         });
                     }
                     registerAutoSave(window.monacoEditor);
@@ -148,33 +151,31 @@ document.addEventListener('DOMContentLoaded', function() {
 			saveData({ editor: window.monacoEditor });
 		}
 	});
-
-    const createAiBtn = document.getElementById('createAiBtn');
-    createAiBtn.addEventListener('click', function () {
-        const limit = 10000; // subject to change
-        const html = window.monacoEditor.getValue().trim();
-        if (html.length >= limit) {
-            buildfire.dialog.alert({
-            message: "The current HTML content exceeds the 10,000 character limit for AI generation. Please reduce the content size and try again.",
-            });
-        } else {
-            dialogs.showAIDialog({html}, (result) => {
-                savedHtml = html;
-                if (result) {
-                    window.monacoEditor.setValue(result);
-                    toggleUndoButton(savedHtml);
-                    console.log('AI dialog closed: ', result);
-                }
-            });
-        }
-    });
-    const undoBtn = document.getElementById('undoBtn');
-    undoBtn.addEventListener('click', function () {
-        if (savedHtml && window.monacoEditor) {
-            window.monacoEditor.setValue(savedHtml);
-            savedHtml = '';
-        }
-        toggleUndoButton(savedHtml);
-    });
-    toggleUndoButton(savedHtml);
+    // TODO: re-enable AI button when ready
+    // const createAiBtn = document.getElementById('createAiBtn');
+    // createAiBtn.addEventListener('click', function () {
+    //     const html = window.monacoEditor.getValue().trim();
+    //         dialogs.showAIDialog({html}, (err, result) => {
+    //             if (err) {
+    //                 buildfire.dialog.alert({
+    //                 message: err,
+    //                 });
+    //             } else {
+    //                 savedHtml = html;
+    //                 if (result) {
+    //                     window.monacoEditor.setValue(result);
+    //                     toggleUndoButtonVisibility(savedHtml);
+    //                 }
+    //             }
+    //         });
+    // });
+    // const undoBtn = document.getElementById('undoBtn');
+    // undoBtn.addEventListener('click', function () {
+    //     if (savedHtml && window.monacoEditor) {
+    //         window.monacoEditor.setValue(savedHtml);
+    //         savedHtml = '';
+    //     }
+    //     toggleUndoButtonVisibility(savedHtml);
+    // });
+    // toggleUndoButtonVisibility(savedHtml);
 });
