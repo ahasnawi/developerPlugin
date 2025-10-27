@@ -1,17 +1,11 @@
-<!-- TODO: add comment before default content script tag to tell the user do not remove it DONE -->
-<!-- add warning when detecting buildfire.min.js is not present -->
-<!-- fix issue when adding a new instance it does not reload on widget, likely from SDK change -->
-<!-- cache user last prompt and load it upon opening the dialog -->
- <!-- change AI dialog placeholder after first generation to something like modify -->
-
 <!DOCTYPE html>
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- build:bundleCSSFiles  -->
-        <link rel="stylesheet" href="cpIcons.css">
-          <link rel="stylesheet" href="style.css">
-          <link rel="stylesheet" href="dialogs/dialogs.css">
+        <link rel="stylesheet" href="cpIcons.css" media="all">
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="dialogs/dialogs.css">
         <!-- endbuild -->
 
         <script src="../../../../scripts/buildfire.min.js"></script>
@@ -20,7 +14,7 @@
         <!-- build:bundleJSFiles  -->
         <script src="dialogs/dialogs.js"></script>
         <script src="ai/ai.js"></script>
-          <script src="scripts.js"></script>
+        <script src="scripts.js"></script>
         <!-- endbuild -->
 
     </head>
@@ -35,6 +29,12 @@
                     the app 
                 </a>
                 and will require publishing to function.
+            </p>
+            <p class="note" id="buildfireNotPresentWarning">
+                <span class="bold text-warning">
+                    Warning:&nbsp;
+                </span>
+                Buildfire SDK scripts are not included in the code. Please ensure to include it in order to use Buildfire functionalities.
             </p>
             <div class="editor">
                 <div id="monacoEditor"></div>

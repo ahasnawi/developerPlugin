@@ -39,6 +39,7 @@ var dialogs = {
                         </div>
                     </div>
                     <div class="dialog-footer">
+                        <span class="icon-check visibility-hidden"></span>
                         <button class="dialog-action" id="startCodingBtn" disabled>Start Coding</button>
                     </div>
                 </div>    
@@ -162,7 +163,6 @@ var dialogs = {
                     aiPrompt.focus();
                 });
             });
-
         }
     }
 };

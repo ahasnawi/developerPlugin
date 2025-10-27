@@ -11,49 +11,72 @@ function init(editor, callback) {
 			return;
 		}
 
-		buildfire.getContext(function(err, context) {
-			if (err) {
-				console.error('Error getting context:', err);
-				callback && callback(err);
-				return;
-			}
-			
-			let html = '';
-			let usedDefault = false;
-			if (result?.data?.content?.html) {
-				html = result.data.content.html;
-			} else {
-				// Use default template if no HTML is saved
-				let scriptSrc = (context && context.endPoints && context.endPoints.pluginRootHost)
-					? context.endPoints.pluginRootHost + '/scripts/buildfire.min.js'
-					: '';
+        let html = '';
+        let usedDefault = false;
+        if (result?.data?.content?.html) {
+            html = result.data.content.html;
+        } else {
+            // Use default template if no HTML is saved
 
-				html = '<!DOCTYPE html>\n<html>\n  <head></head>\n  <body>\n    <div>Hello Buildfire</div>\n  <!-- If you want to use Buildfire SDK, do not remove the following script tag -->\n  <script src="' + scriptSrc + '"></script>\n  </body>\n</html>';
-				usedDefault = true;
-			}
+            const scriptSrc = '../../../scripts/buildfire.min.js';
+            html = 
+`<!DOCTYPE html>
+<html>
+    <head>
+        <!-- If you want to use Buildfire SDK, do not remove the following script tag -->
+        <script src="../../../scripts/buildfire.min.js"></script>
+        <script src="../../../scripts/buildfire/components/fabSpeedDial/fabSpeedDial.js"></script>
+        <link rel="stylesheet" href="../../../styles/components/fabSpeedDial/fabSpeedDial.css" />
+        <style>
+            .plugin-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="plugin-container">
+            <h2>Hello Buildfire</h2>
+            <button id="hiBtn" class="btn btn-primary stretch">SAY HI!</button>
+            <div id="fabSpeedDialContainer"></div>
+        </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const hiBtn = document.getElementById('hiBtn');
+            hiBtn.addEventListener('click', function() {
+                buildfire.dialog.alert({
+                    message: "Hi there !",
+                });
+            });
+        })
+    </script>
+    </body>
+</html>`;
+            usedDefault = true;
+        }
+        checkBuildfireSDKPresence(html);
+        editor.setValue(html);
 
-			editor.setValue(html);
+        // Restore reload switch state
+        let autoReloadSwitch = document.getElementById('autoReloadSwitch');
+        if (result?.data?.content) {
+            if (typeof result.data.content.autoReload == 'undefined') {
+                result.data.content.autoReload = true; // default value
+                autoReloadSwitch.checked = true;
+            } else {
+                autoReloadSwitch.checked = !!result.data.content.autoReload;
+            }
+        } else {
+            autoReloadSwitch.checked = true; // default value
+        }
+        // Save default value if it was used
+        if (usedDefault) {
+            saveData({ editor });
+            buildfire.messaging.sendMessageToWidget({ action: 'reloadUserCodePlugin' });
+        }
 
-			// Restore reload switch state
-			let autoReloadSwitch = document.getElementById('autoReloadSwitch');
-			if (result?.data?.content) {
-				if (typeof result.data.content.autoReload == 'undefined') {
-					result.data.content.autoReload = true; // default value
-					autoReloadSwitch.checked = true;
-				} else {
-					autoReloadSwitch.checked = !!result.data.content.autoReload;
-				}
-			} else {
-				autoReloadSwitch.checked = true; // default value
-			}
-
-			// Save default value if it was used
-			if (usedDefault) {
-				saveData({ editor });
-			}
-
-			callback && callback(null, result);
-		});
+        callback && callback(null, result);
 	});
 }
 
@@ -61,6 +84,7 @@ function init(editor, callback) {
 function saveData(options) {
 	const html = options.editor.getValue();
 	const autoReloadSwitch = document.getElementById('autoReloadSwitch');
+	checkBuildfireSDKPresence(html);
 	const data = {
 		content: {
 			html: html,
@@ -103,6 +127,21 @@ function toggleUndoButtonVisibility(savedHtml) {
     }
 };
 
+// detect if buildfire.min.js || buildfire.js is present in the HTML code, if not show a warning
+function checkBuildfireSDKPresence(html) {
+    const buildfireNotPresentWarning = document.getElementById('buildfireNotPresentWarning');
+    const buildfireScriptRegex = /<\s*script[^>]*src\s*=\s*['"]?(?:\.\.\/){3}scripts\/buildfire(?:\.min)?\.js['"]?[^>]*>/i;
+
+    if (buildfireScriptRegex.test(html)) {
+        if (buildfireNotPresentWarning) {
+            buildfireNotPresentWarning.style.display = 'none';
+        }
+    } else {
+        if (buildfireNotPresentWarning) {
+            buildfireNotPresentWarning.style.display = 'block';
+        }
+    }
+}
 // Monaco Editor dynamic loader and initialization
 (function() {
 	let baseUrl = window.location.origin + window.location.pathname.replace(/\\/g, '/').replace(/\/[^/]*$/, '/');
@@ -120,7 +159,7 @@ function toggleUndoButtonVisibility(savedHtml) {
 			init(window.monacoEditor, (err, result) => {
                 if (!err) {
                     // check for disclaimer acknowledgment
-                    disclaimerAcknowledged = result?.data?.content?.disclaimerAcknowledged || false;
+                    disclaimerAcknowledged = result?.data?.content?.disclaimerAcknowledged;
                     if (!disclaimerAcknowledged) {
                         dialogs.showDisclaimerDialog(() => {
                             disclaimerAcknowledged = true;

@@ -205,3 +205,11 @@ p.note a {
     cursor: pointer;
     font-size: 18px;
 }
+
+#buildfireNotPresentWarning {
+    display: none;
+}
+
+.visibility-hidden {
+    visibility: hidden;
+}
