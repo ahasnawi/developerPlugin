@@ -11,15 +11,13 @@ function init(editor, callback) {
 			return;
 		}
 
-        let html = '';
-        let usedDefault = false;
-        if (result?.data?.content?.html) {
-            html = result.data.content.html;
-        } else {
-            // Use default template if no HTML is saved
-
-            const scriptSrc = '../../../scripts/buildfire.min.js';
-            html = 
+		let html = '';
+		let usedDefault = false;
+		if (result?.data?.content?.html) {
+			html = result.data.content.html;
+		} else {
+			// Use default template if no HTML is saved
+			html =
 `<!DOCTYPE html>
 <html>
     <head>
@@ -53,30 +51,30 @@ function init(editor, callback) {
     </script>
     </body>
 </html>`;
-            usedDefault = true;
-        }
-        checkBuildfireSDKPresence(html);
-        editor.setValue(html);
+			usedDefault = true;
+		}
+		checkBuildfireSDKPresence(html);
+		editor.setValue(html);
 
-        // Restore reload switch state
-        let autoReloadSwitch = document.getElementById('autoReloadSwitch');
-        if (result?.data?.content) {
-            if (typeof result.data.content.autoReload == 'undefined') {
-                result.data.content.autoReload = true; // default value
-                autoReloadSwitch.checked = true;
-            } else {
-                autoReloadSwitch.checked = !!result.data.content.autoReload;
-            }
-        } else {
-            autoReloadSwitch.checked = true; // default value
-        }
-        // Save default value if it was used
-        if (usedDefault) {
-            saveData({ editor });
-            buildfire.messaging.sendMessageToWidget({ action: 'reloadUserCodePlugin' });
-        }
+		// Restore reload switch state
+		let autoReloadSwitch = document.getElementById('autoReloadSwitch');
+		if (result?.data?.content) {
+			if (typeof result.data.content.autoReload == 'undefined') {
+				result.data.content.autoReload = true; // default value
+				autoReloadSwitch.checked = true;
+			} else {
+				autoReloadSwitch.checked = !!result.data.content.autoReload;
+			}
+		} else {
+			autoReloadSwitch.checked = true; // default value
+		}
+		// Save default value if it was used
+		if (usedDefault) {
+			saveData({ editor });
+			buildfire.messaging.sendMessageToWidget({ action: 'reloadUserCodePlugin' });
+		}
 
-        callback && callback(null, result);
+		callback && callback(null, result);
 	});
 }
 
@@ -89,12 +87,12 @@ function saveData(options) {
 		content: {
 			html: html,
 			autoReload: autoReloadSwitch.checked ? true : false,
-            disclaimerAcknowledged: disclaimerAcknowledged
+			disclaimerAcknowledged: disclaimerAcknowledged
 		}
 	};
-    if (typeof disclaimerAcknowledged == 'boolean') {
-        data.content.disclaimerAcknowledged = disclaimerAcknowledged;
-    }
+	if (typeof disclaimerAcknowledged == 'boolean') {
+		data.content.disclaimerAcknowledged = disclaimerAcknowledged;
+	}
 
 	buildfire.datastore.save(data, function (err) {
 		if (err) {
@@ -119,37 +117,38 @@ function registerAutoSave(editor, delay = 500) {
 	editor.onDidChangeModelContent(onChange);
 }
 
+// TODO: re-enable undo button when AI is ready
 // switch "undo" button visibility
-function toggleUndoButtonVisibility(savedHtml) {
-    const undoBtn = document.getElementById('undoBtn');
-    if (undoBtn) {
-        undoBtn.style.display = savedHtml ? 'block' : 'none';
-    }
-};
+// function toggleUndoButtonVisibility(savedHtml) {
+// 	const undoBtn = document.getElementById('undoBtn');
+// 	if (undoBtn) {
+// 		undoBtn.style.display = savedHtml ? 'block' : 'none';
+// 	}
+// };
 
 // detect if buildfire.min.js || buildfire.js is present in the HTML code, if not show a warning
 function checkBuildfireSDKPresence(html) {
-    const buildfireNotPresentWarning = document.getElementById('buildfireNotPresentWarning');
-    const buildfireScriptRegex = /<\s*script[^>]*src\s*=\s*['"]?(?:\.\.\/){3}scripts\/buildfire(?:\.min)?\.js['"]?[^>]*>/i;
+	const buildfireNotPresentWarning = document.getElementById('buildfireNotPresentWarning');
+	const buildfireScriptRegex = /<\s*script[^>]*src\s*=\s*['"]?(?:\.\.\/){3}scripts\/buildfire(?:\.min)?\.js['"]?[^>]*>/i;
 
-    if (buildfireScriptRegex.test(html)) {
-        if (buildfireNotPresentWarning) {
-            buildfireNotPresentWarning.style.display = 'none';
-        }
-    } else {
-        if (buildfireNotPresentWarning) {
-            buildfireNotPresentWarning.style.display = 'block';
-        }
-    }
+	if (buildfireScriptRegex.test(html)) {
+		if (buildfireNotPresentWarning) {
+			buildfireNotPresentWarning.style.display = 'none';
+		}
+	} else {
+		if (buildfireNotPresentWarning) {
+			buildfireNotPresentWarning.style.display = 'block';
+		}
+	}
 }
 // Monaco Editor dynamic loader and initialization
-(function() {
+(function () {
 	let baseUrl = window.location.origin + window.location.pathname.replace(/\\/g, '/').replace(/\/[^/]*$/, '/');
 	let script = document.createElement('script');
 	script.src = baseUrl + 'js/monaco-editor/min/vs/loader.js';
-	script.onload = function() {
+	script.onload = function () {
 		require.config({ paths: { 'vs': baseUrl + 'js/monaco-editor/min/vs' } });
-		require(['vs/editor/editor.main'], function() {
+		require(['vs/editor/editor.main'], function () {
 			window.monacoEditor = monaco.editor.create(document.getElementById('monacoEditor'), {
 				value: '', // Remove initialValue logic
 				language: 'html',
@@ -157,64 +156,63 @@ function checkBuildfireSDKPresence(html) {
 				automaticLayout: true
 			});
 			init(window.monacoEditor, (err, result) => {
-                if (!err) {
-                    // check for disclaimer acknowledgment
-                    disclaimerAcknowledged = result?.data?.content?.disclaimerAcknowledged;
-                    if (!disclaimerAcknowledged) {
-                        dialogs.showDisclaimerDialog(() => {
-                            disclaimerAcknowledged = true;
-                            saveData({ editor: window.monacoEditor });
-                        });
-                    }
-                    registerAutoSave(window.monacoEditor);
-                }
+				if (!err) {
+					// check for disclaimer acknowledgment
+					disclaimerAcknowledged = result?.data?.content?.disclaimerAcknowledged;
+					if (!disclaimerAcknowledged) {
+						window.dialogs.showDisclaimerDialog(() => {
+							disclaimerAcknowledged = true;
+							saveData({ editor: window.monacoEditor });
+						});
+					}
+					registerAutoSave(window.monacoEditor);
+				}
 			});
 		});
 	};
 	document.head.appendChild(script);
 })();
 
-document.addEventListener('DOMContentLoaded', function() {
-    let reloadBtn = document.getElementById('reloadEditorBtn');
+document.addEventListener('DOMContentLoaded', function () {
+	let reloadBtn = document.getElementById('reloadEditorBtn');
 	let autoReloadSwitch = document.getElementById('autoReloadSwitch');
-    let savedHtml = '';
 
-	reloadBtn.addEventListener('click', function() {
+	reloadBtn.addEventListener('click', function () {
 		// send reload message to widget on button click
 		buildfire.messaging.sendMessageToWidget({ action: 'reloadUserCodePlugin' });
 	});
 
 	// Send message to widget and save when autoReloadSwitch value changes
-	autoReloadSwitch.addEventListener('change', function() {
+	autoReloadSwitch.addEventListener('change', function () {
 		if (window.monacoEditor) {
 			saveData({ editor: window.monacoEditor });
 		}
 	});
-    // TODO: re-enable AI button when ready
-    // const createAiBtn = document.getElementById('createAiBtn');
-    // createAiBtn.addEventListener('click', function () {
-    //     const html = window.monacoEditor.getValue().trim();
-    //         dialogs.showAIDialog({html}, (err, result) => {
-    //             if (err) {
-    //                 buildfire.dialog.alert({
-    //                 message: err,
-    //                 });
-    //             } else {
-    //                 savedHtml = html;
-    //                 if (result) {
-    //                     window.monacoEditor.setValue(result);
-    //                     toggleUndoButtonVisibility(savedHtml);
-    //                 }
-    //             }
-    //         });
-    // });
-    // const undoBtn = document.getElementById('undoBtn');
-    // undoBtn.addEventListener('click', function () {
-    //     if (savedHtml && window.monacoEditor) {
-    //         window.monacoEditor.setValue(savedHtml);
-    //         savedHtml = '';
-    //     }
-    //     toggleUndoButtonVisibility(savedHtml);
-    // });
-    // toggleUndoButtonVisibility(savedHtml);
+	// TODO: re-enable AI button when ready
+	// const createAiBtn = document.getElementById('createAiBtn');
+	// createAiBtn.addEventListener('click', function () {
+	//     const html = window.monacoEditor.getValue().trim();
+	//         dialogs.showAIDialog({html}, (err, result) => {
+	//             if (err) {
+	//                 buildfire.dialog.alert({
+	//                 message: err,
+	//                 });
+	//             } else {
+	//                 savedHtml = html;
+	//                 if (result) {
+	//                     window.monacoEditor.setValue(result);
+	//                     toggleUndoButtonVisibility(savedHtml);
+	//                 }
+	//             }
+	//         });
+	// });
+	// const undoBtn = document.getElementById('undoBtn');
+	// undoBtn.addEventListener('click', function () {
+	//     if (savedHtml && window.monacoEditor) {
+	//         window.monacoEditor.setValue(savedHtml);
+	//         savedHtml = '';
+	//     }
+	//     toggleUndoButtonVisibility(savedHtml);
+	// });
+	// toggleUndoButtonVisibility(savedHtml);
 });

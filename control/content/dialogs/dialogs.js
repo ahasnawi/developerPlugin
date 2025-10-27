@@ -1,21 +1,21 @@
-var dialogs = {
-    showDisclaimerDialog: function (callback) {
-        function closeDialog() {
-            if (callback) callback();
-            if (backdrop) {
-                document.body.removeChild(backdrop);
-            }
-            if (dialogContainer) {
-                document.body.removeChild(dialogContainer);
-            }
-        }
+window.dialogs = {
+	showDisclaimerDialog: function (callback) {
+		function closeDialog() {
+			if (callback) callback();
+			if (backdrop) {
+				document.body.removeChild(backdrop);
+			}
+			if (dialogContainer) {
+				document.body.removeChild(dialogContainer);
+			}
+		}
 
-        const backdrop = document.createElement('div');
-        backdrop.classList.add('dialog-backdrop');
+		const backdrop = document.createElement('div');
+		backdrop.classList.add('dialog-backdrop');
 
-        const dialogContainer = document.createElement('div');
-        dialogContainer.classList.add('dialog-container');
-        dialogContainer.innerHTML = `
+		const dialogContainer = document.createElement('div');
+		dialogContainer.classList.add('dialog-container');
+		dialogContainer.innerHTML = `
                 <div class="dialog">
                     <div class="dialog-header">
                         <div class="dialog-title">Create Your Own Plugin</div>
@@ -45,46 +45,46 @@ var dialogs = {
                 </div>    
             `;
 
-        document.body.appendChild(backdrop);
-        document.body.appendChild(dialogContainer);
+		document.body.appendChild(backdrop);
+		document.body.appendChild(dialogContainer);
 
-        const checkbox = dialogContainer.querySelector('#disclaimerCheckbox');
-        const startBtn = dialogContainer.querySelector('#startCodingBtn');
-        if (checkbox && startBtn) {
-            checkbox.addEventListener('change', function () {
-                startBtn.disabled = !checkbox.checked;
-            });
-            startBtn.addEventListener('click', function () {
-                closeDialog();
-            });
-        }
-    },
+		const checkbox = dialogContainer.querySelector('#disclaimerCheckbox');
+		const startBtn = dialogContainer.querySelector('#startCodingBtn');
+		if (checkbox && startBtn) {
+			checkbox.addEventListener('change', function () {
+				startBtn.disabled = !checkbox.checked;
+			});
+			startBtn.addEventListener('click', function () {
+				closeDialog();
+			});
+		}
+	},
 
-    showAIDialog: function (options, callback) {
-        const limit = 10000;
-        showDialog();
+	showAIDialog: function (options, callback) {
+		const limit = 10000;
+		showDialog();
 
-        function closeDialog(result) {
-            const backdrop = document.getElementById('aiDialogBackdrop');
-            const dialogContainer = document.getElementById('aiDialogContainer');
-            if (callback) callback(null, result);
-            if (backdrop) {
-                document.body.removeChild(backdrop);
-            }
-            if (dialogContainer) {
-                document.body.removeChild(dialogContainer);
-            }
-        }
+		function closeDialog(result) {
+			const backdrop = document.getElementById('aiDialogBackdrop');
+			const dialogContainer = document.getElementById('aiDialogContainer');
+			if (callback) callback(null, result);
+			if (backdrop) {
+				document.body.removeChild(backdrop);
+			}
+			if (dialogContainer) {
+				document.body.removeChild(dialogContainer);
+			}
+		}
 
-        function showDialog() {
-            const backdrop = document.createElement('div');
-            backdrop.classList.add('dialog-backdrop');
-            backdrop.id = 'aiDialogBackdrop';
+		function showDialog() {
+			const backdrop = document.createElement('div');
+			backdrop.classList.add('dialog-backdrop');
+			backdrop.id = 'aiDialogBackdrop';
 
-            const dialogContainer = document.createElement('div');
-            dialogContainer.classList.add('dialog-container');
-            dialogContainer.id = 'aiDialogContainer';
-            dialogContainer.innerHTML = `
+			const dialogContainer = document.createElement('div');
+			dialogContainer.classList.add('dialog-container');
+			dialogContainer.id = 'aiDialogContainer';
+			dialogContainer.innerHTML = `
                     <div class="dialog ai-dialog">
                         <div class="dialog-header">
                             <div class="dialog-title">What are you looking to create?</div>
@@ -115,54 +115,54 @@ var dialogs = {
                     </div>    
                 `;
 
-            document.body.appendChild(backdrop);
-            document.body.appendChild(dialogContainer);
+			document.body.appendChild(backdrop);
+			document.body.appendChild(dialogContainer);
 
-            const generateAiBtn = dialogContainer.querySelector('#generateAiBtn');
-            const aiPrompt = dialogContainer.querySelector('.ai-prompt');
-            aiPrompt.focus();
+			const generateAiBtn = dialogContainer.querySelector('#generateAiBtn');
+			const aiPrompt = dialogContainer.querySelector('.ai-prompt');
+			aiPrompt.focus();
 
-            generateAiBtn.addEventListener('click', function () {
-                if (!aiPrompt || !aiPrompt.value || !aiPrompt.value.trim().length) {
-                    buildfire.dialog.alert({
-                        message: "Please enter a prompt for AI generation.",
-                    });
-                    return;
-                }
-                const userMessage = options.html + '\n\n' + aiPrompt.value;
-                if (userMessage.length >= limit) {
-                    buildfire.dialog.alert({
-                        message: "prompt exceed the character limit for AI generation. Please reduce size and try again.",
-                    });
-                    return;
-                }
-                generateAICode({ userMessage }, (err, res) => {
-                    if (err || !res) {
-                        buildfire.dialog.alert({
-                            message: "Error generating AI response.",
-                        });
-                        return;
-                    }
-                    closeDialog(res);
-                });
-            });
+			generateAiBtn.addEventListener('click', function () {
+				if (!aiPrompt || !aiPrompt.value || !aiPrompt.value.trim().length) {
+					buildfire.dialog.alert({
+						message: 'Please enter a prompt for AI generation.',
+					});
+					return;
+				}
+				const userMessage = options.html + '\n\n' + aiPrompt.value;
+				if (userMessage.length >= limit) {
+					buildfire.dialog.alert({
+						message: 'Prompt exceeds the character limit for AI generation. Please reduce size and try again.',
+					});
+					return;
+				}
+				window.generateAICode({ userMessage }, (err, res) => {
+					if (err || !res) {
+						buildfire.dialog.alert({
+							message: 'Error generating AI response.',
+						});
+						return;
+					}
+					closeDialog(res);
+				});
+			});
 
-            const closeIcon = dialogContainer.querySelector('.close-icon');
-            if (closeIcon) {
-                closeIcon.addEventListener('click', function () {
-                    closeDialog();
-                });
-            }
+			const closeIcon = dialogContainer.querySelector('.close-icon');
+			if (closeIcon) {
+				closeIcon.addEventListener('click', function () {
+					closeDialog();
+				});
+			}
 
-            // Add click listeners to all example <li> items
-            const exampleItems = dialogContainer.querySelectorAll('.ai-examples li');
-            exampleItems.forEach(function (item) {
-                item.style.cursor = 'pointer';
-                item.addEventListener('click', function () {
-                    aiPrompt.value = item.textContent;
-                    aiPrompt.focus();
-                });
-            });
-        }
-    }
+			// Add click listeners to all example <li> items
+			const exampleItems = dialogContainer.querySelectorAll('.ai-examples li');
+			exampleItems.forEach(function (item) {
+				item.style.cursor = 'pointer';
+				item.addEventListener('click', function () {
+					aiPrompt.value = item.textContent;
+					aiPrompt.focus();
+				});
+			});
+		}
+	}
 };
