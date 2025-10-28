@@ -23,13 +23,12 @@ function init(editor, callback) {
     <head>
         <!-- If you want to use Buildfire SDK, do not remove the following script tag -->
         <script src="../../../scripts/buildfire.min.js"></script>
-        <script src="../../../scripts/buildfire/components/fabSpeedDial/fabSpeedDial.js"></script>
-        <link rel="stylesheet" href="../../../styles/components/fabSpeedDial/fabSpeedDial.css" />
         <style>
             .plugin-container {
+                align-items: center;
                 display: flex;
                 flex-direction: column;
-                align-items: center;
+                padding: 10px;
             }
         </style>
     </head>
