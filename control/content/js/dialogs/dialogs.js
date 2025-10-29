@@ -94,7 +94,7 @@ window.dialogs = {
                             <textarea class="ai-prompt" rows="6" placeholder="Describe your plugin here..."></textarea>
                             <div class="create-ai-container">
                                 <button id="generateAiBtn" class="btn create-ai-btn">
-                                    <img src="../../resources/ai_icon.svg" alt="">
+                                    <img src="../../../assets/images/ai_icon.svg" alt="">
                                     Create with AI
                                 </button>
                             </div>

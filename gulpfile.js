@@ -114,13 +114,19 @@ gulp.task('monaco', function() {
         .pipe(gulp.dest(destinationFolder));
 });
 
+gulp.task('fonts', function() {
+    return gulp.src(['**/*.{woff,woff2,ttf,eot,otf}'], { base: '.' })
+        .pipe(gulp.dest(destinationFolder));
+});
+
 
 const buildTasksToRun = [
     'html',
     'resources',
     ...cssTasks.map(task => task.name),
     ...jsTasks.map(task => task.name),
-    'monaco'
+    'monaco',
+    'fonts'
 ];
 
 const build = gulp.series(
