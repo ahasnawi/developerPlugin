@@ -17,39 +17,7 @@ function init(editor, callback) {
 			html = result.data.content.html;
 		} else {
 			// Use default template if no HTML is saved
-			html =
-`<!DOCTYPE html>
-<html>
-    <head>
-        <!-- If you want to use Buildfire SDK, do not remove the following script tag -->
-        <script src="../../../scripts/buildfire.min.js"></script>
-        <style>
-            .plugin-container {
-                align-items: center;
-                display: flex;
-                flex-direction: column;
-                padding: 10px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="plugin-container">
-            <h2>Hello Buildfire</h2>
-            <button id="hiBtn" class="btn btn-primary stretch">SAY HI!</button>
-            <div id="fabSpeedDialContainer"></div>
-        </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const hiBtn = document.getElementById('hiBtn');
-            hiBtn.addEventListener('click', function() {
-                buildfire.dialog.alert({
-                    message: "Hi there !",
-                });
-            });
-        })
-    </script>
-    </body>
-</html>`;
+			html = getDefaultTemplate();
 			usedDefault = true;
 		}
 		checkBuildfireSDKPresence(html);
@@ -172,7 +140,121 @@ function checkBuildfireSDKPresence(html) {
 	document.head.appendChild(script);
 })();
 
-document.addEventListener('DOMContentLoaded', function () {
+function getDefaultTemplate() {
+	const template =
+`<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <!-- keep buildfire.min.js in order for the plugin to function correctly -->
+    <script src="../../../scripts/buildfire.min.js"></script>
+    <script src="../../../scripts/buildfire/components/drawer/drawer.js"></script>
+    <style>
+        body {
+            padding-top: var(--bf-safe-area-inset-top);
+        }
+
+        .plugin-container {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        .buttons-container {
+            margin-top: 20vh;
+            width: 50vw
+        }
+
+        .hidden-before-theme-load {
+            visibility: hidden;
+        }
+
+        #hiBtn {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body class="hidden-before-theme-load visible-after-theme-load">
+    <div class="plugin-container">
+        <h2>Hello Buildfire</h2>
+        <div class="buttons-container">
+            <button id="hiBtn" class="btn btn-primary stretch">Say Hi</button>
+            <button id="pluginsBtn" class="btn btn-success stretch">Open Plugins</button>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const hiBtn = document.getElementById('hiBtn');
+            const pluginsBtn = document.getElementById('pluginsBtn');
+            pluginsBtn.style.display = 'none';
+            hiBtn.addEventListener('click', function () {
+                buildfire.dialog.alert({
+                    title: 'Greeting',
+                    message: "Hi there!",
+                });
+            });
+
+            // get all plugin instances
+            buildfire.pluginInstance.search({}, function (err, instances) {
+                let pluginInstances = [];
+                if (err) {
+                    console.error(err);
+                } else if (instances.result && instances.result.length > 0) {
+                    pluginsBtn.style.display = 'block';
+                    pluginsBtn.addEventListener('click', function () {
+                        pluginInstances = mapPluginInstances(instances.result);
+
+                        buildfire.components.drawer.open(
+                            {
+                                header: "Navigate to a Plugin",
+                                //content: 'Navigate to a Plugin',
+                                multiSelection: false,
+                                allowSelectAll: false,
+                                enableFilter: false,
+                                isHTML: true,
+                                triggerCallbackOnUIDismiss: false,
+                                autoUseImageCdn: true,
+                                listItems: pluginInstances,
+                            },
+                            (err, result) => {
+                                if (err) return console.error(err);
+
+                                // handle drawer item selection, navigate to selected plugin instance
+                                buildfire.navigation.navigateTo({
+                                    instanceId: result.id,
+                                });
+                                buildfire.components.drawer.closeDrawer();
+                            }
+                        );
+                    });
+                }
+            });
+            // return array of mapped plugin instances that maps to drawer listItems structure
+            function mapPluginInstances(pluginInstances) {
+                let mappedPluginInstances = [];
+                for (let i = 0; i < pluginInstances.length; i++) {
+                    mappedPluginInstances.push({
+                        text: pluginInstances[i].data.title,
+                        imageUrl: pluginInstances[i].data.iconUrl,
+                        id: pluginInstances[i].data.instanceId
+                    });
+                }
+                return mappedPluginInstances;
+            }
+        });
+    </script>
+</body>
+
+</html>`;
+
+	return template;
+}
+
+document.addEventListener('load', function () {
 	let reloadBtn = document.getElementById('reloadEditorBtn');
 	let autoReloadSwitch = document.getElementById('autoReloadSwitch');
 

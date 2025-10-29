@@ -1,7 +1,7 @@
 {
   "author": "Buildfire",
   "pluginName": "Developer",
-  "pluginDescription": "Enable developers to fully build their own plugins using HTML, CSS, and JavaScript.",
+  "pluginDescription": "Add your code with the Developer Plugin, giving you the freedom to create unique features, custom functionality, and integrations directly inside your app.",
   "supportEmail": "support@buildfire.com",
   "control": {
     "content": {
