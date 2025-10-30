@@ -254,7 +254,7 @@ function getDefaultTemplate() {
 	return template;
 }
 
-document.addEventListener('load', function () {
+document.addEventListener('DOMContentLoaded', function () {
 	let reloadBtn = document.getElementById('reloadEditorBtn');
 	let autoReloadSwitch = document.getElementById('autoReloadSwitch');
 

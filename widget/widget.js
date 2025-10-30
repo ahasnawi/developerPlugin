@@ -7,8 +7,8 @@ buildfire.getContext(function(err, context) {
 		return;
 	}
 	if (context.liveMode === 1) {
-		let cmsHtmlHost = context.endPoints.cmsHtmlHost;
-		let url = cmsHtmlHost + '/cms/sdk/widget/' + context.appId + '/' + context.pluginId + '/' + context.instanceId + '/primary/' + context.liveMode;
+		let cmsHost = context.endPoints.cmsHost;
+		let url = cmsHost + '/cms/sdk/widget/' + context.appId + '/' + context.pluginId + '/' + context.instanceId + '/primary/' + context.liveMode;
 		window.location.href = url + window.location.search + '&isUserCodePlugin=true';
 	} else {
 		buildfire.datastore.get(function (err, result) {
@@ -17,8 +17,8 @@ buildfire.getContext(function(err, context) {
 				return;
 			}
 			if (result?.data?.content?.html) {
-				let cmsHtmlHost = context.endPoints.cmsHtmlHost;
-				let url = cmsHtmlHost + '/cms/sdk/widget/' + context.appId + '/' + context.pluginId + '/' + context.instanceId + '/primary/' + context.liveMode;
+				let cmsHost = context.endPoints.cmsHost;
+				let url = cmsHost + '/cms/sdk/widget/' + context.appId + '/' + context.pluginId + '/' + context.instanceId + '/primary/' + context.liveMode;
 				window.location.href = url + window.location.search + '&isUserCodePlugin=true';
 			} else {
 				console.log('No HTML content found in datastore. Not redirecting.');
